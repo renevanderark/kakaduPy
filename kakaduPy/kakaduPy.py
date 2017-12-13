@@ -20,19 +20,6 @@ global exiftool
 exiftool = "/usr/bin/exiftool"
 
 
-def printWarning(msg):
-    """Print warning to stderr"""
-    msgString = ("User warning: " + msg + "\n")
-    sys.stderr.write(msgString)
-
-
-def errorExit(msg):
-    """Print warning to stderr and exit"""
-    msgString = ("Error: " + msg + "\n")
-    sys.stderr.write(msgString)
-    sys.exit()
-
-
 def launchSubProcess(args):
     """Launch subprocess and return exit code, stdout and stderr"""
     try:
