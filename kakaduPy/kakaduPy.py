@@ -84,6 +84,10 @@ def compressToJP2(fileIn, fileOut, parameters):
     dictOut["stderr"] = err
 
     return dictOut
+
+def convertDirectory(dirIn, ExtIn, dirOut):
+    """Convert all files with extension ExtIn in directory dirIn to JP2 in directory dirOut"""
+    pass
     
 
 def main():
@@ -92,7 +96,8 @@ def main():
     imageIn = "/home/johan/handschriften/tiff/KBHSS01000058055/424C1-02-02_0208.tif"
     imageOut = "/home/johan/test/test.jp2"
 
-    # Parameters for lossy compression of  RGB image at 20:1 ratio 
+    # Parameters for lossy compression of  RGB image at 20:1 ratio
+    # TODO: add XMP metadata, codestream comment
     params = ["Creversible=no",
               "Clevels=5",
               "Corder=RPCL",
