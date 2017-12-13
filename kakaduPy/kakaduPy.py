@@ -3,44 +3,21 @@
 
 import sys
 import os
+import subprocess as sub
 import csv
-from . import config
-from . import exiftool
-from . import kakadu
-
-# Fix empty scriptName if called from Java/Jython
-if len(scriptName) == 0:
-    scriptName = 'kakaduPy'
-
-__version__ = '0.1.0'
-
-# Create parser
-parser = argparse.ArgumentParser(
-    description="Verify file size of ISO image and extract technical information")
 
 
-def parseCommandLine():
-    """Parse command line"""
-    # Add arguments
-    parser.add_argument('ISOImages',
-                        action="store",
-                        type=str,
-                        help="input ISO image(s) (wildcards allowed)")
-    parser.add_argument('--version', '-v',
-                        action='version',
-                        version=__version__)
-    parser.add_argument('--offset', '-o',
-                        type=int,
-                        help="offset (in sectors) of ISO image on CD (analogous to \
-                        -N option in cdinfo)",
-                        action='store',
-                        dest='sectorOffset',
-                        default=0)
+# Path to kdu_compress binary
+global kdu_compress
+kdu_compress = "/home/johan/kakadu/kdu_compress"
 
-    # Parse arguments
-    args = parser.parse_args()
+# NOTE: path to kdu_compress must be part of LD_LIBRARY_PATH!
+# To add it, use:
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"/home/johan/kakadu/
 
-    return args
+# Path to ExifTool binary
+global exiftool
+exiftool = "/usr/bin/exiftool"
 
 
 def printWarning(msg):
@@ -55,28 +32,82 @@ def errorExit(msg):
     sys.stderr.write(msgString)
     sys.exit()
 
-def toJP2(imageIn, imageOut, parameters):
-    jp2OutInfo = kakadu. 
+
+def launchSubProcess(args):
+    """Launch subprocess and return exit code, stdout and stderr"""
+    try:
+        # Execute command line; stdout + stderr redirected to objects
+        # 'output' and 'errors'.
+        # Setting shell=True avoids console window poppong up with pythonw
+        p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE, shell=False)
+        output, errors = p.communicate()
+
+        # Decode to UTF8
+        outputAsString = output.decode('utf-8')
+        errorsAsString = errors.decode('utf-8')
+
+        exitStatus = p.returncode
+
+    except Exception:
+        # I don't even want to to start thinking how one might end up here ...
+
+        exitStatus = -99
+        outputAsString = ""
+        errorsAsString = ""
+
+    return(exitStatus, outputAsString, errorsAsString)
+
+
+def compressToJP2(fileIn, fileOut, parameters):
+    """Compress image to JP2"""
+
+    # Add command-line arguments
+    args = [kdu_compress]
+    args.append("-i")
+    args.append(fileIn)
+    args.append("-o")
+    args.append(fileOut)
+
+    for p in parameters:
+        args.append(p)
+    
+    # Command line as string (used for logging purposes only)
+    cmdStr = " ".join(args)
+
+    status, out, err = launchSubProcess(args)
+
+    # Main results to dictionary
+    dictOut = {}
+    dictOut["cmdStr"] = cmdStr
+    dictOut["status"] = status
+    dictOut["stdout"] = out
+    dictOut["stderr"] = err
+
+    return dictOut
     
 
-
-
 def main():
-    # Set encoding of the terminal to UTF-8
-    if sys.version.startswith("2"):
-        out = codecs.getwriter("UTF-8")(sys.stdout)
-        err = codecs.getwriter("UTF-8")(sys.stderr)
-    elif sys.version.startswith("3"):
-        out = codecs.getwriter("UTF-8")(sys.stdout.buffer)
-        err = codecs.getwriter("UTF-8")(sys.stderr.buffer)
-
-    # Get input from command line
-    #args = parseCommandLine()
 
     # Input
     imageIn = "/home/johan/handschriften/tiff/KBHSS01000058055/424C1-02-02_0208.tif"
     imageOut = "/home/johan/test/test.jp2"
-    params = []
+
+    # Parameters for lossy compression at 20:1 ratio for RGB image 
+    params = ["Creversible=no",
+              "Clevels=5",
+              "Corder=RPCL",
+              "Stiles={1024,1024}",
+              "Cblk={64,64}",
+              "Cprecincts={256,256},{256,256},{128,128}",
+              "Clayers=8",
+              "-rate",
+              "1.2,0.6,0.3,0.15,0.075,0.0375,0.01875,0.009375",
+              "Cuse_sop=yes",
+              "Cuse_eph=yes",
+              "Cmodes=SEGMARK"]
+
+    resultKakadu = compressToJP2(imageIn, imageOut, params)
+    print(resultKakadu)
 
 
 if __name__ == "__main__":
