@@ -92,7 +92,7 @@ def main():
     imageIn = "/home/johan/handschriften/tiff/KBHSS01000058055/424C1-02-02_0208.tif"
     imageOut = "/home/johan/test/test.jp2"
 
-    # Parameters for lossy compression at 20:1 ratio for RGB image 
+    # Parameters for lossy compression of  RGB image at 20:1 ratio 
     params = ["Creversible=no",
               "Clevels=5",
               "Corder=RPCL",
