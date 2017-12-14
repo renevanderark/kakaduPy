@@ -5,6 +5,7 @@ import sys
 import os
 import uuid
 import io
+import glob
 import subprocess as sub
 import csv
 
@@ -71,7 +72,8 @@ def extractMetadata(fileIn):
 
 
 def compressToJP2(fileIn, fileOut, parameters, extractMetadataFlag):
-    """Compress image to JP2
+    """
+    Compress image to JP2
     if extractMetadataFlag is True, Exiftool is used to extract metadata from
     fileIn in, which is subsequently written to an XMP sidecar file and then
     embedded in an XML box (as per KB specs). However, by default Kakadu
@@ -124,20 +126,42 @@ def compressToJP2(fileIn, fileOut, parameters, extractMetadataFlag):
 
     return dictOut
 
-def convertDirectory(dirIn, ExtIn, dirOut):
-    """Convert all files with extension ExtIn in directory dirIn to JP2 in directory dirOut"""
-    pass
+def convertDirectory(dirIn, patternIn, dirOut, params, extractMetadataFlag):
+    """
+    Convert all files with glob pattern patternIn in directory dirIn to JP2 in
+    directory dirOut
+    """
+
+    dirIn = os.path.normpath(dirIn)
+    dirOut = os.path.normpath(dirOut)
+
+    imagesIn = glob.glob(os.path.join(dirIn,patternIn))
+
+    for imageIn in imagesIn:
+            # Construct name for output image
+            imageInTail = os.path.split(imageIn)[1]
+            baseNameIn = os.path.splitext(imageInTail)[0]
+            imageNameOut = baseNameIn + ".jp2"
+            imageOut = os.path.join(dirOut, imageNameOut)
+            
+            # Convert to JP2
+            resultKakadu = compressToJP2(imageIn, imageOut, params, extractMetadataFlag)
     
 
 def main():
 
-    # Input
-    imageIn = "/home/johan/handschriften/tiff/KBHSS01000058055/424C1-02-02_0208.tif"
-    imageOut = "/home/johan/test/test.jp2"
+    # Directory with input images (TIFF)
+    dirIn = "/home/johan/handschriften/tiff/KBHSS01000058055"
+    # Glob pattern defines which files are processed    
+    patternIn = "*.*"
+
+    # Output directory
+    dirOut = "/home/johan/test"
+
+    # True/False flag that activates Exiftool-based metadata extraction
     extractMetadataFlag = False
 
     # Parameters for lossy compression of  RGB image at 20:1 ratio
-    # TODO: add XMP metadata, codestream comment
     params = ["Creversible=no",
               "Clevels=5",
               "Corder=RPCL",
@@ -153,7 +177,12 @@ def main():
               "-com",
               "KB_ACCESS_LOSSY_01/01/2015"]
 
-    resultKakadu = compressToJP2(imageIn, imageOut, params, extractMetadataFlag)
+    # Convert all files in directory    
+    convertDirectory(dirIn,
+                     patternIn,
+                     dirOut,
+                     params,
+                     extractMetadataFlag)
 
 
 if __name__ == "__main__":
