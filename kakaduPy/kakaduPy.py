@@ -7,7 +7,7 @@ import uuid
 import io
 import glob
 import subprocess as sub
-import csv
+from libxmp import XMPFiles, consts
 
 
 # Path to kdu_compress binary
@@ -17,10 +17,6 @@ kdu_compress = "/home/johan/kakadu/kdu_compress"
 # NOTE: path to kdu_compress must be part of LD_LIBRARY_PATH!
 # To add it, use:
 # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"/home/johan/kakadu/
-
-# Path to ExifTool binary (only needed if extractMetadataFlag is set to True)
-global exiftool
-exiftool = "/usr/bin/exiftool"
 
 
 def launchSubProcess(args):
@@ -47,29 +43,6 @@ def launchSubProcess(args):
 
     return(exitStatus, outputAsString, errorsAsString)
 
-def extractMetadata(fileIn):
-    """Extract metadata to XMP format (written to stdout)"""
-
-    # Add command-line arguments
-    args = [exiftool]
-    args.append(fileIn)
-    args.append("-o")
-    args.append("-.xmp")
-
-    # Command line as string (used for logging purposes only)
-    cmdStr = " ".join(args)
-
-    status, out, err = launchSubProcess(args)
-
-    # Main results to dictionary
-    dictOut = {}
-    dictOut["cmdStr"] = cmdStr
-    dictOut["status"] = status
-    dictOut["stdout"] = out
-    dictOut["stderr"] = err
-
-    return dictOut
-
 
 def compressToJP2(fileIn, fileOut, parameters, extractMetadataFlag):
     """
@@ -92,11 +65,8 @@ def compressToJP2(fileIn, fileOut, parameters, extractMetadataFlag):
 
     if extractMetadataFlag:
         # Extract metadata from fileIn to XMP
-        resultExiftool = extractMetadata(fileIn)
 
-        # XMP data in stdout
-        xmpData = resultExiftool["stdout"]
-
+        xmpData = str(XMPFiles(file_path=fileIn).get_xmp())
         # Prepend xmpData with string "xml "
         xmpData = "xml "+ xmpData
 
@@ -159,7 +129,7 @@ def main():
     dirOut = "/home/johan/test"
 
     # True/False flag that activates Exiftool-based metadata extraction
-    extractMetadataFlag = False
+    extractMetadataFlag = True
 
     # Parameters for lossy compression of  RGB image at 20:1 ratio
     params = ["Creversible=no",
