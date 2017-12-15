@@ -1,5 +1,8 @@
 #! /usr/bin/env python
-"""Functions to convert TIFF to JP2"""
+"""Minimalistic Python wrapper for Kakadu's kdu_ccompres tool
+Requires python-xmp-toolkit. Note that python-xmp-toolkit is not available
+for Windows, so metadata extraction won't work on Windows!
+"""
 
 import sys
 import os
@@ -7,7 +10,9 @@ import uuid
 import io
 import glob
 import subprocess as sub
-from libxmp import XMPFiles, consts
+if sys.platform != "win32":
+    # Libxmp is not available under Windows!
+    from libxmp import XMPFiles, consts
 
 
 # Path to kdu_compress binary
@@ -47,8 +52,8 @@ def launchSubProcess(args):
 def compressToJP2(fileIn, fileOut, parameters, extractMetadataFlag):
     """
     Compress image to JP2
-    if extractMetadataFlag is True, Exiftool is used to extract metadata from
-    fileIn in, which is subsequently written to an XMP sidecar file and then
+    if extractMetadataFlag is True, metadata is extractede from fileIn, 
+    which is subsequently written to an XMP sidecar file and then
     embedded in an XML box (as per KB specs). However, by default Kakadu
     already does the metadata extraction natively, but it uses the uuid box!
     """
@@ -63,9 +68,11 @@ def compressToJP2(fileIn, fileOut, parameters, extractMetadataFlag):
     for p in parameters:
         args.append(p)
 
-    if extractMetadataFlag:
-        # Extract metadata from fileIn to XMP
+    if extractMetadataFlag and sys.platform != "win32":
+        # Metadata extraction and embedding. Skipped if OS is Windows,
+        # because Windows does not support LibXMP!
 
+        # Extract metadata from fileIn to XMP
         xmpData = str(XMPFiles(file_path=fileIn).get_xmp())
         # Prepend xmpData with string "xml "
         xmpData = "xml "+ xmpData
@@ -129,6 +136,7 @@ def main():
     dirOut = "/home/johan/test"
 
     # True/False flag that activates metadata extraction
+    # Leave 
     extractMetadataFlag = False
 
     # Parameters for lossy compression of  RGB image at 20:1 ratio
