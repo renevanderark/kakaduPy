@@ -128,7 +128,7 @@ def main():
     # Output directory
     dirOut = "/home/johan/test"
 
-    # True/False flag that activates Exiftool-based metadata extraction
+    # True/False flag that activates metadata extraction
     extractMetadataFlag = False
 
     # Parameters for lossy compression of  RGB image at 20:1 ratio
