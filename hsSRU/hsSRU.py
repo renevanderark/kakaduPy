@@ -27,6 +27,11 @@ def getPPN(fn):
         xml = etree.fromstring(response.content)
         path = ".//{http://purl.org/dc/elements/1.1/}identifier[@{http://www.w3.org/2001/XMLSchema-instance}type='dcterms:URI']"
         ppn_element = xml.find(path)
+        title_path = ".//{http://purl.org/dc/elements/1.1/}title"
+        title_element = xml.find(title_path)
+        title = ''
+        if title_element is not None:
+            title = title_element.text
         found_ppn=None
         if ppn_element is not None:
             part=ppn_element.text.split('urn=PPN:')
@@ -52,4 +57,4 @@ def getPPN(fn):
                     ppn=ppn_element.attrib["{http://krait.kb.nl/coop/tel/handbook/telterms.html}recordIdentifier"]
                     part=ppn.split('AC:')
                     found_ppn=part[1]
-        return found_ppn
+        return (found_ppn, title)
