@@ -10,14 +10,12 @@ import uuid
 import io
 import glob
 import subprocess as sub
-if sys.platform != "win32":
-    # Libxmp is not available under Windows!
-    from libxmp import XMPFiles, consts
+
 
 
 # Path to kdu_compress binary
 global kdu_compress
-kdu_compress = "/home/johan/kakadu/kdu_compress"
+kdu_compress = "opj_compress"
 
 # NOTE: path to kdu_compress must be part of LD_LIBRARY_PATH!
 # To add it, use:
@@ -52,7 +50,7 @@ def launchSubProcess(args):
 def compressToJP2(fileIn, fileOut, parameters, extractMetadataFlag):
     """
     Compress image to JP2
-    if extractMetadataFlag is True, metadata is extractede from fileIn, 
+    if extractMetadataFlag is True, metadata is extractede from fileIn,
     which is subsequently written to an XMP sidecar file and then
     embedded in an XML box (as per KB specs). However, by default Kakadu
     already does the metadata extraction natively, but it uses the uuid box!
@@ -68,24 +66,8 @@ def compressToJP2(fileIn, fileOut, parameters, extractMetadataFlag):
     for p in parameters:
         args.append(p)
 
-    if extractMetadataFlag and sys.platform != "win32":
-        # Metadata extraction and embedding. Skipped if OS is Windows,
-        # because Windows does not support LibXMP!
 
-        # Extract metadata from fileIn to XMP
-        xmpData = str(XMPFiles(file_path=fileIn).get_xmp())
-        # Prepend xmpData with string "xml "
-        xmpData = "xml "+ xmpData
 
-        # Write xmpData to temporary file
-        xmpFNameTemp = str(uuid.uuid1())
-        with io.open(xmpFNameTemp, "w", encoding="utf-8") as fXMP:
-            fXMP.write(xmpData)
-        fXMP.close()
-
-        args.append("-jp2_box")
-        args.append(xmpFNameTemp)
-    
     # Command line as string (used for logging purposes only)
     cmdStr = " ".join(args)
 
@@ -101,7 +83,6 @@ def compressToJP2(fileIn, fileOut, parameters, extractMetadataFlag):
     if extractMetadataFlag:
         os.remove(xmpFNameTemp)
 
-    return dictOut
 
 def convertDirectory(dirIn, patternIn, dirOut, params, extractMetadataFlag):
     """
@@ -120,42 +101,29 @@ def convertDirectory(dirIn, patternIn, dirOut, params, extractMetadataFlag):
             baseNameIn = os.path.splitext(imageInTail)[0]
             imageNameOut = baseNameIn + ".jp2"
             imageOut = os.path.join(dirOut, imageNameOut)
-            
+
             # Convert to JP2
-            resultKakadu = compressToJP2(imageIn, imageOut, params, extractMetadataFlag)
-    
+            compressToJP2(imageIn, imageOut, params, extractMetadataFlag)
+
 
 def main():
 
     # Directory with input images (TIFF)
-    dirIn = "/home/johan/handschriften/tiff/KBHSS01000058055"
-    # Glob pattern defines which files are processed    
+    dirIn = "/home/rar010/KBHSS01000058055"
+    # Glob pattern defines which files are processed
     patternIn = "*.*"
 
     # Output directory
-    dirOut = "/home/johan/test"
+    dirOut = "/home/rar010/research/jp2-out"
 
     # True/False flag that activates metadata extraction
-    # Leave 
+    # Leave
     extractMetadataFlag = False
 
     # Parameters for lossy compression of  RGB image at 20:1 ratio
-    params = ["Creversible=no",
-              "Clevels=5",
-              "Corder=RPCL",
-              "Stiles={1024,1024}",
-              "Cblk={64,64}",
-              "Cprecincts={256,256},{256,256},{128,128}",
-              "Clayers=8",
-              "-rate",
-              "1.2,0.6,0.3,0.15,0.075,0.0375,0.01875,0.009375",
-              "Cuse_sop=yes",
-              "Cuse_eph=yes",
-              "Cmodes=SEGMARK",
-              "-com",
-              "KB_ACCESS_LOSSY_01/01/2015"]
+    params = ["-r", "5", "-t", "1024,1024", "-n", "6"]
 
-    # Convert all files in directory    
+    # Convert all files in directory
     convertDirectory(dirIn,
                      patternIn,
                      dirOut,

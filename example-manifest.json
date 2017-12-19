@@ -1,0 +1,46 @@
+{
+  "@context": "http://iiif.io/api/presentation/2/context.json",
+  "@id": "http://localhost/mirador/test-manifest.json",
+  "@type": "sc:Manifest",
+  "label": "TODO ppn",
+  "metadata": [],
+  "description": "TODO PPN",
+  "attribution": "Provided by the National Library of the Netherlands",
+  "viewingHint": "paged",
+  "sequences": [
+    {
+      "@id": "http://imageviewer-iiif.kbresearch.nl/iiif-service/metadata/sequence/normal.json",
+      "@type": "sc:Sequence",
+      "label": "Normal Order",
+      "canvases": [
+        {
+          "@id": "https://imageviewer-iiif.kbresearch.nl/iiif-service/file%3A%2F%2F%2Fopt3%2Fhandschriften%2Fjp2%2F20171026%2FKBHSS01000058925%2Faccess%2F424C19_01_02_8620.jp2/info.json",
+          "@type": "sc:Canvas",
+          "label": "Test Canvas",
+          "height": 2221,
+          "width": 2740,
+          "images": [
+            {
+              "@id": "https://imageviewer-iiif.kbresearch.nl/iiif-service/file%3A%2F%2F%2Fopt3%2Fhandschriften%2Fjp2%2F20171026%2FKBHSS01000058925%2Faccess%2F424C19_01_02_8620.jp2/info.json",
+              "@type": "oa:Annotation",
+              "motivation": "sc:painting",
+              "resource": {
+                "@id": "http://imageviewer-iiif.kbresearch.nl/iiif-service/file%3A%2F%2F%2Fopt3%2Fhandschriften%2Fjp2%2F20171026%2FKBHSS01000058925%2Faccess%2F424C19_01_02_8620.jp2/full/full/0/default.jpg",
+                "@type": "dctypes:Image",
+                "format": "image/jpeg",
+                "height": 2221,
+                "width": 2740,
+                "service": {
+                  "@context": "http://iiif.io/api/image/2.1/context.json",
+                  "@id": "http://imageviewer-iiif.kbresearch.nl/iiif-service/file%3A%2F%2F%2Fopt3%2Fhandschriften%2Fjp2%2F20171026%2FKBHSS01000058925%2Faccess%2F424C19_01_02_8620.jp2",
+                  "profile": "http://iiif.io/api/image/2.1/level1.json"
+                }
+              },
+              "on": "https://imageviewer-iiif.kbresearch.nl/iiif-service/file%3A%2F%2F%2Fopt3%2Fhandschriften%2Fjp2%2F20171026%2FKBHSS01000058925%2Faccess%2F424C19_01_02_8620.jp2/info.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

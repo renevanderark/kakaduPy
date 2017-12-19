@@ -1,0 +1,27 @@
+{
+  "@id": "https://imageviewer-iiif.kbresearch.nl/iiif-service/%%IDENTIFIER%%/info.json",
+  "@type": "sc:Canvas",
+  "label": "Test Canvas",
+  "height": %%HEIGHT%%,
+  "width": %%WIDTH%%,
+  "images": [
+    {
+      "@id": "https://imageviewer-iiif.kbresearch.nl/iiif-service/%%IDENTIFIER%%/info.json",
+      "@type": "oa:Annotation",
+      "motivation": "sc:painting",
+      "resource": {
+        "@id": "http://imageviewer-iiif.kbresearch.nl/iiif-service/%%IDENTIFIER%%/full/full/0/default.jpg",
+        "@type": "dctypes:Image",
+        "format": "image/jpeg",
+        "height": %%HEIGHT%%,
+        "width": %%WIDTH%%,
+        "service": {
+          "@context": "http://iiif.io/api/image/2.1/context.json",
+          "@id": "http://imageviewer-iiif.kbresearch.nl/iiif-service/%%IDENTIFIER%%",
+          "profile": "http://iiif.io/api/image/2.1/level1.json"
+        }
+      },
+      "on": "https://imageviewer-iiif.kbresearch.nl/iiif-service/%%IDENTIFIER%%/info.json"
+    }
+  ]
+}
